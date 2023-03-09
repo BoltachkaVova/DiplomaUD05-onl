@@ -1,48 +1,98 @@
-﻿using System;
+﻿using UI;
 using UnityEngine;
+using Weapon;
 
-namespace Scripts
+
+namespace Player
 {
-    [RequireComponent(typeof(Rigidbody))]
     public class Player : MonoBehaviour
     {
-        [SerializeField] private float speed = 0.75f;
-        [SerializeField] private float rotateSpeed = 7.5f;
-        
-        private Planet _planet;
-        private Joystick _joystick;
-        private Rigidbody _rigidbody;
-        private PlayerAnimationController _animation;
+        [SerializeField] private float speed = 2f;
+        [SerializeField] private float rotateSpeed = 6f;
+        [SerializeField] private float armor;
 
-        private bool _isActive; // для остановки расчетов физики(будет)
+        private float _currentHealth;
+        private bool _isActive; 
         
+        private Vector3 _direction;
+        
+        private Joystick _joystick;
+        private PlayerAnimations _animations;
+        private WeaponBase _weapon;
+        private HealthBar _healthBar;
+
+
+        public bool IsActive => _isActive;
+
         private void Awake()
         {
-            _animation = GetComponent<PlayerAnimationController>();
-            _rigidbody = GetComponent<Rigidbody>();
-            _planet = FindObjectOfType<Planet>();
+            _animations = GetComponent<PlayerAnimations>();
             _joystick = FindObjectOfType<Joystick>();
+            _weapon = GetComponentInChildren<WeaponBase>();
+            _healthBar = GetComponentInChildren<HealthBar>();
+        }
+
+        private void Start()
+        { 
+            _currentHealth = 1f;
+            _healthBar.Show(_currentHealth).Forget();
+            _isActive = true;
+        }
+
+        private void OnCollisionEnter(Collision other)
+        {
+            if (other.gameObject.TryGetComponent(out Bullet bullet) && _isActive)
+                TakeDamage(bullet.Damage);
         }
         
-        private void FixedUpdate()
+        private void Update()
         {
-            _animation.SetAnimationMove(_joystick.Direction.magnitude);
+            if(!_isActive)
+                return;
+            
             if (_joystick.Direction != Vector2.zero)
+            {
                 Move();
-
-            var upwards = _planet.transform.position - transform.position;
-            var rotation = Quaternion.FromToRotation(-transform.up, upwards);
-            _rigidbody.rotation = rotation * _rigidbody.rotation;
+                return;
+            }
+            
+            _animations.Move(0);
+            if (Input.GetKeyDown(KeyCode.Space))
+                Attack();
         }
-
+        
         private void Move()
         {
-            var direction = new Vector3(_joystick.Direction.x, 0f, _joystick.Direction.y).normalized;
-            _rigidbody.MoveRotation(Quaternion.Lerp(_rigidbody.rotation, Quaternion.LookRotation(direction), rotateSpeed * Time.deltaTime));
+            _direction = new Vector3(_joystick.Direction.x, 0, _joystick.Direction.y); 
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_direction), rotateSpeed * Time.deltaTime); 
+            
+            var magnitude = _joystick.Direction.magnitude; 
+            transform.position += transform.forward * (speed * Time.deltaTime * magnitude); 
+            _animations.Move(magnitude);
+        }
 
-            var magnitude = _joystick.Direction.magnitude;
-            _rigidbody.MovePosition(transform.position + transform.forward * (magnitude * speed * Time.deltaTime));
+
+        private void Attack()
+        {
+            _weapon.Fire();
+            _animations.Attack();
         }
         
+        private void TakeDamage(int damage)
+        {
+            var incomingDamage = damage / armor;
+            _currentHealth -= incomingDamage;
+            
+            _healthBar.Show(_currentHealth).Forget();
+            
+            if(_currentHealth <= 0)
+                Rip();
+        }
+
+        private void Rip()
+        {
+            _animations.Rip();
+            _isActive = false;
+        }
     }
 }
