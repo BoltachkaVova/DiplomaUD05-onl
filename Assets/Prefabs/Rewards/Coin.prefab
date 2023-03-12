@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 1418962804633049570}
   - component: {fileID: 1418962804633049573}
   - component: {fileID: 1418962804633049572}
+  - component: {fileID: -6466722610498975280}
   m_Layer: 0
   m_Name: Coin
   m_TagString: Untagged
@@ -27,8 +28,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418962804633049575}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 12.513, y: 0.189, z: 3.699}
-  m_LocalScale: {x: 0.1, y: 0.008, z: 0.1}
+  m_LocalPosition: {x: -0.000207, y: 0.000207, z: 0}
+  m_LocalScale: {x: 0.0014, y: 0.00011, z: 0.0014}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -92,9 +93,22 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418962804633049575}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   m_Radius: 0.5000001
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
+--- !u!114 &-6466722610498975280
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418962804633049575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b45d63ee527446b2b9c644a9d6957403, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpPowerCoin: 1

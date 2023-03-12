@@ -1,42 +1,44 @@
-﻿using UI;
+﻿using System;
+using Rewards;
+using Unit;
 using UnityEngine;
 using Weapon;
 
 
 namespace Player
 {
-    public class Player : MonoBehaviour
+    public class Player : UnitBase
     {
         [SerializeField] private float speed = 2f;
         [SerializeField] private float rotateSpeed = 6f;
-        [SerializeField] private float armor;
 
-        private float _currentHealth;
-        private bool _isActive; 
-        
         private Vector3 _direction;
+
+        private int _coins;
+        private float _counterTime;
+        
+        
         
         private Joystick _joystick;
         private PlayerAnimations _animations;
-        private WeaponBase _weapon;
-        private HealthBar _healthBar;
-
-
-        public bool IsActive => _isActive;
+        private Enemy.Enemy _target;
+        
 
         private void Awake()
         {
+            base.Awake();
             _animations = GetComponent<PlayerAnimations>();
             _joystick = FindObjectOfType<Joystick>();
-            _weapon = GetComponentInChildren<WeaponBase>();
-            _healthBar = GetComponentInChildren<HealthBar>();
+            _target = FindObjectOfType<Enemy.Enemy>();
         }
 
-        private void Start()
-        { 
-            _currentHealth = 1f;
-            _healthBar.Show(_currentHealth).Forget();
-            _isActive = true;
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.gameObject.TryGetComponent(out Coin coin))
+            {
+                _coins++;
+                coin.gameObject.SetActive(false);
+            }
         }
 
         private void OnCollisionEnter(Collision other)
@@ -50,17 +52,31 @@ namespace Player
             if(!_isActive)
                 return;
             
+            _counterTime += Time.deltaTime;
+            
             if (_joystick.Direction != Vector2.zero)
             {
                 Move();
                 return;
             }
-            
             _animations.Move(0);
-            if (Input.GetKeyDown(KeyCode.Space))
+            
+            if(_target.IsActive)
+                SearchClosestEnemy();
+            
+            if (delayBetweenAttacks <= _counterTime && _target.IsActive)
+            {
+                _counterTime = 0;
                 Attack();
+            }
         }
-        
+
+        private void SearchClosestEnemy()
+        {
+            _direction = (_target.transform.position - transform.position).normalized;
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(_direction), rotateSpeed * Time.deltaTime); 
+        }
+
         private void Move()
         {
             _direction = new Vector3(_joystick.Direction.x, 0, _joystick.Direction.y); 
@@ -72,13 +88,13 @@ namespace Player
         }
 
 
-        private void Attack()
+        protected override void Attack()
         {
-            _weapon.Fire();
+            _weapon.Fire(_direction);
             _animations.Attack();
         }
         
-        private void TakeDamage(int damage)
+        protected override void TakeDamage(int damage)
         {
             var incomingDamage = damage / armor;
             _currentHealth -= incomingDamage;
@@ -89,7 +105,7 @@ namespace Player
                 Rip();
         }
 
-        private void Rip()
+        protected override void Rip()
         {
             _animations.Rip();
             _isActive = false;

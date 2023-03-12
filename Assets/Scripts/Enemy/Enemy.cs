@@ -1,39 +1,29 @@
-﻿using UnityEngine;
+﻿using Rewards;
+using UnityEngine;
 using UI;
+using Unit;
 using Weapon;
 
 namespace Enemy
 {
-    public class Enemy : MonoBehaviour
+    public class Enemy : UnitBase
     {
-        [SerializeField] private float delayBetweenAttacks;
-        [SerializeField] private float armor = 20f;
-        
-        private float _currentHealth;
         private float _counterTime;
-        private bool _isActive;
-
+        
         private Player.Player _target;
-        private WeaponBase _weapon;
         private EnemyAnimations _animations;
-        private HealthBar _healthBar;
+        private Coin[] _coins;
 
+        private Vector3 _direction;
 
         private void Awake()
         {
-            _healthBar = GetComponentInChildren<HealthBar>();
+            base.Awake();
             _animations = GetComponent<EnemyAnimations>();
-            _weapon = GetComponentInChildren<WeaponBase>();
             _target = FindObjectOfType<Player.Player>();
+            _coins = GetComponentsInChildren<Coin>(true);
         }
-
-        private void Start()
-        {
-            _currentHealth = 1f;
-            _healthBar.Show(_currentHealth).Forget();
-            _isActive = true;
-        }
-
+        
         private void OnCollisionEnter(Collision other)
         {
             if (other.gameObject.TryGetComponent(out Bullet bullet) && _isActive)
@@ -42,11 +32,11 @@ namespace Enemy
         
         private void Update()
         {
-            if (!_target.IsActive)
+            if (!_target.IsActive || !_isActive)
                 return;
             
-            var direction = (_target.transform.position - transform.position).normalized;
-            transform.rotation = Quaternion.LookRotation(direction, transform.up);
+            _direction = (_target.transform.position - transform.position).normalized;
+            transform.rotation = Quaternion.LookRotation(_direction, transform.up);
             
             _counterTime += Time.deltaTime;
             if (_counterTime >= delayBetweenAttacks)
@@ -54,13 +44,13 @@ namespace Enemy
            
         }
 
-        private void Attack()
+        protected override void Attack()
         {
             _counterTime = 0;
-            _weapon.Fire();
+            _weapon.Fire(_direction);
         }
         
-        private void TakeDamage(int damage)
+        protected override void TakeDamage(int damage)
         {
             var incomingDamage = damage / armor;
             _currentHealth -= incomingDamage; 
@@ -70,9 +60,13 @@ namespace Enemy
                 Rip();
         }
 
-        private void Rip()
+        protected override void Rip()
         {
             _isActive = false;
+            
+            foreach (var coin in _coins)
+                coin.gameObject.SetActive(true);
+            
             _animations.Rip();
         }
     }

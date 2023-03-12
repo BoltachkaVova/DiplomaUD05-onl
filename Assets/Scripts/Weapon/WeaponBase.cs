@@ -17,10 +17,12 @@ namespace Weapon
             _shootPoint = GetComponentInChildren<ShootPoint>();
         }
         
-        public virtual void Fire()
+        public virtual void Fire(Vector3 direction)
         {
-            _particle.Play();
-            Instantiate(bulletPrefab.gameObject, _shootPoint.transform.position, Quaternion.identity);
+            var bullet = Instantiate(bulletPrefab.gameObject, _shootPoint.transform.position, Quaternion.identity).GetComponent<Bullet>();
+           bullet._direction = direction;
+           
+           _particle.Play();
         }
     }
 }

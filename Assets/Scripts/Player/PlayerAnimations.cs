@@ -7,7 +7,6 @@ namespace Player
         private Animator _animator;
         
         private static readonly int Death = Animator.StringToHash("Death");
-        private static readonly int Reloading = Animator.StringToHash("Reloading");
         private static readonly int Attack1 = Animator.StringToHash("Attack");
         private static readonly int Walk = Animator.StringToHash("Walk");
 

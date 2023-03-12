@@ -749,10 +749,10 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.0016500235
+  m_Radius: 0.0016975093
   m_Height: 0.008188175
   m_Direction: 1
-  m_Center: {x: 0.00023579925, y: 0.0034719144, z: 0.00018325329}
+  m_Center: {x: 0.00053795945, y: 0.0034719144, z: 0.00036252185}
 --- !u!114 &4278016702104758583
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -765,9 +765,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c1b1a1959d24123429dfcaa1cec84497, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  delayBetweenAttacks: 2
+  armor: 30
   speed: 2
   rotateSpeed: 6
-  armor: 30
 --- !u!114 &4278016702104758580
 MonoBehaviour:
   m_ObjectHideFlags: 0

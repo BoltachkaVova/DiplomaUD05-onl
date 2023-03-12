@@ -10,13 +10,8 @@ namespace Weapon
 
         public int Damage => damage;
 
-        private Vector3 _direction;
-
-        private void Awake()
-        {
-            _direction = transform.forward;
-        }
-
+        public Vector3 _direction;
+        
         private void Update()
         {
             transform.Translate(_direction * speed * Time.deltaTime);
